@@ -1,26 +1,19 @@
 ﻿version 4.00
 cm_version 1.0
 platform CM-530
-o // param_text:Avoider [practical phase]
-o // param_text:Initial release: 2012-08-03
-o // param_text:Revised : modify comment (September 30, 2015).
-o // param_text:[Operations]
-o // param_text:Robot moves close to the obstacle
-- 
 o main
 o begin
 o // param_text:L/R wheel speed (0 ~ 1023). Modify speed until robot run straightly in "Straightness_check_mode"
-o load param_dest:var:l_wheel_high_speed param_src:dec_num:600
-o load param_dest:var:r_wheel_high_speed param_src:dec_num:600
-o load param_dest:var:l_wheel_normal_speed param_src:dec_num:374
-o load param_dest:var:r_wheel_normal_speed param_src:dec_num:374
-o load param_dest:var:l_wheel_low_speed param_src:dec_num:165
-o load param_dest:var:r_wheel_low_speed param_src:dec_num:165
+o load param_dest:var:l_wheel_high_speed param_src:dec_num:800
+o load param_dest:var:r_wheel_high_speed param_src:dec_num:800
+o load param_dest:var:l_wheel_normal_speed param_src:dec_num:498
+o load param_dest:var:r_wheel_normal_speed param_src:dec_num:498
+o load param_dest:var:l_wheel_low_speed param_src:dec_num:219
+o load param_dest:var:r_wheel_low_speed param_src:dec_num:219
 - 
 o // param_text:time parameters for turning a corner
-o load param_dest:var:forward_time param_src:hrtimer_num:80
-x load param_dest:var:pivot_time param_src:hrtimer_num:360
-o load param_dest:var:pivot_time param_src:hrtimer_num:180
+o load param_dest:var:forward_time param_src:hrtimer_num:30
+o load param_dest:var:pivot_time param_src:hrtimer_num:184
 - 
 o // param_text:80
 o load param_dest:var:threshold_1 param_src:dec_num:80
@@ -43,15 +36,9 @@ o if param_src:cm:4 lop:== param_src:button_num:8 rop:then
 o jump laddr_dest:Straightness_check_mode
 - 
 o label laddr_src:Start
-x call faddr_dest:forward
-x wait param_src:aux:6:63 lop:<= param_src:var:threshold_2 rop:then
-x call faddr_dest:pivot_left
-- 
 o while(1)
 o begin
-o if param_src:aux:6:63 lop:> param_src:dec_num:100 rop:&& param_src:aux:1:63 lop:> param_src:dec_num:100 rop:&& param_src:aux:5:63 lop:> param_src:dec_num:100 rop:then
-o call faddr_dest:reverse
-o if param_src:aux:6:63 lop:> param_src:dec_num:100 rop:then
+o if param_src:aux:6:63 lop:> param_src:dec_num:150 rop:then
 o call faddr_dest:pivot_left
 o elseif param_src:aux:5:63 lop:<= param_src:var:threshold_3 rop:&& param_src:aux:5:63 lop:>= param_src:var:threshold_2 rop:then
 o call faddr_dest:forward
@@ -87,8 +74,8 @@ o end
 - 
 o function faddr_src:forward
 o begin
-o compute param_dest:motor:1:107 param_src:dir_num:52 aop:+ param_src:dec_num:700
-o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:dec_num:700
+o compute param_dest:motor:1:107 param_src:dir_num:45 aop:+ param_src:var:l_wheel_high_speed
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_high_speed
 o end
 - 
 o function faddr_src:forward_shortly
@@ -98,32 +85,24 @@ o load param_dest:cm:6 param_src:var:forward_time
 o call faddr_dest:precise_timer_standby
 o end
 - 
-o function faddr_src:reverse
-o begin
-o compute param_dest:motor:1:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
-o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
-o load param_dest:cm:6 param_src:dec_num:370
-o call faddr_dest:precise_timer_standby
-o end
-- 
 o function faddr_src:pivot_left
 o begin
-o compute param_dest:motor:1:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
-o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
+o compute param_dest:motor:1:107 param_src:dir_num:1069 aop:+ param_src:var:l_wheel_high_speed
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_high_speed
 o load param_dest:cm:6 param_src:var:pivot_time
 o call faddr_dest:precise_timer_standby
 o end
 - 
 o function faddr_src:l_slight_turn
 o begin
-o compute param_dest:motor:1:107 param_src:dir_num:0 aop:+ param_src:var:l_wheel_normal_speed
-o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_high_speed
+o compute param_dest:motor:1:107 param_src:dir_num:45 aop:+ param_src:var:l_wheel_low_speed
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_normal_speed
 o end
 - 
 o function faddr_src:r_slight_turn
 o begin
-o compute param_dest:motor:1:107 param_src:dir_num:0 aop:+ param_src:var:l_wheel_high_speed
-o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_normal_speed
+o compute param_dest:motor:1:107 param_src:dir_num:45 aop:+ param_src:var:l_wheel_normal_speed
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_low_speed
 o end
 - 
 o function faddr_src:r_corner_turn
@@ -135,22 +114,10 @@ o end
 - 
 o function faddr_src:right_turn
 o begin
-o compute param_dest:motor:1:107 param_src:dir_num:0 aop:+ param_src:var:l_wheel_high_speed
+o compute param_dest:motor:1:107 param_src:dir_num:45 aop:+ param_src:var:l_wheel_high_speed
 o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_low_speed
 o end
 - 
-o function faddr_src:backward
-o begin
-o compute param_dest:motor:1:107 param_src:dir_num:1076 aop:+ param_src:var:l_wheel_low_speed
-o compute param_dest:motor:2:107 param_src:dir_num:0 aop:+ param_src:var:r_wheel_low_speed
-o end
-- 
-o function faddr_src:backward_shortly
-o begin
-o call faddr_dest:backward
-o load param_dest:cm:6 param_src:var:forward_time
-o call faddr_dest:precise_timer_standby
-o end
 - 
 o function faddr_src:precise_timer_standby
 o begin
@@ -357,4 +324,387 @@ o load param_dest:custom:w:ID:8 param_src:dec_num:0
 o end
 o end
 o end
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
 - 
