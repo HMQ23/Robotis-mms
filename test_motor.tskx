@@ -1,0 +1,396 @@
+﻿version 4.00
+cm_version 1.0
+platform CM-530
+o // param_text:Sequence Racer [practical phase]
+o // param_text:Initial release: 2012-08-03
+o // param_text:Revised : modify comment (September 30, 2015).
+o // param_text:[Operations]
+o // param_text:press the controller's directional buttons
+o // param_text:the the robot turns in the corresponding direction
+- 
+o main
+o begin
+o // param_text:L/R wheel speed (0 ~ 1023)
+o // param_text:Modify speed until robot run straightly in "Straightness_check_mode"
+o load param_dest:var:l_wheel_speed param_src:dec_num:800
+o load param_dest:var:r_wheel_speed param_src:dec_num:800
+o load param_dest:var:forward_time param_src:hrtimer_num:1000
+o load param_dest:var:pivot_time param_src:hrtimer_num:270
+o load param_dest:var:standby_time param_src:hrtimer_num:600
+- 
+o // param_text:Press START button then press 'D' button until you hear melody to enter "Assembly check mode"
+o if param_src:cm:4 lop:== param_src:button_num:4 rop:then
+o jump laddr_dest:Assembly_check_mode
+- 
+o // param_text:check Dynamixel's ID and mode
+o call faddr_dest:check_ID_mode
+- 
+o // param_text:Press START button then press 'U' button until you hear melody to enter "Straightness check mode"
+o if param_src:cm:4 lop:== param_src:button_num:8 rop:then
+o jump laddr_dest:Straightness_check_mode
+- 
+o label laddr_src:Start
+o call faddr_dest:initialize
+- 
+o while(1)
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:0
+- 
+o while(1)
+o begin
+o wait param_src:cm:4 lop:== param_src:button_num:0 rop:then
+- 
+o if param_src:cm:4 lop:== param_src:button_num:8 rop:|| param_src:cm:4 lop:== param_src:button_num:4 rop:|| param_src:cm:4 lop:== param_src:button_num:2 rop:|| param_src:cm:4 lop:== param_src:button_num:1 rop:then
+o begin
+o load param_dest:var:button param_src:cm:4
+o call faddr_dest:button_standby
+- 
+o if param_src:var:button_number lop:== param_src:dec_num:1 rop:then
+o begin
+o call faddr_dest:button_init
+o load param_dest:var:button_1 param_src:var:button
+o call faddr_dest:button_standby
+o call faddr_dest:buzzer_button
+o compute param_dest:var:button_number param_src:var:button_number aop:+ param_src:dec_num:1
+o end
+- 
+o elseif param_src:var:button_number lop:== param_src:dec_num:2 rop:then
+o begin
+o load param_dest:var:button_2 param_src:var:button
+o call faddr_dest:button_standby
+o call faddr_dest:buzzer_button
+o compute param_dest:var:button_number param_src:var:button_number aop:+ param_src:dec_num:1
+o end
+- 
+o elseif param_src:var:button_number lop:== param_src:dec_num:3 rop:then
+o begin
+o load param_dest:var:button_3 param_src:var:button
+o call faddr_dest:button_standby
+o call faddr_dest:buzzer_button
+o compute param_dest:var:button_number param_src:var:button_number aop:+ param_src:dec_num:1
+o end
+- 
+o elseif param_src:var:button_number lop:== param_src:dec_num:4 rop:then
+o begin
+o load param_dest:var:button_4 param_src:var:button
+o call faddr_dest:button_standby
+o call faddr_dest:buzzer_button
+o compute param_dest:var:button_number param_src:var:button_number aop:+ param_src:dec_num:1
+o end
+- 
+o elseif param_src:var:button_number lop:== param_src:dec_num:5 rop:then
+o begin
+o load param_dest:var:button_5 param_src:var:button
+o call faddr_dest:button_standby
+o call faddr_dest:buzzer_button
+o compute param_dest:var:button_number param_src:var:button_number aop:+ param_src:dec_num:1
+o end
+- 
+o elseif param_src:var:button_number lop:== param_src:dec_num:6 rop:then
+o begin
+o call faddr_dest:buzzer_failure
+o call faddr_dest:button_init
+o load param_dest:var:button_number param_src:dec_num:1
+o end
+o end
+- 
+o elseif param_src:cm:4 lop:== param_src:button_num:16 rop:then
+o begin
+o load param_dest:var:button_number param_src:dec_num:1
+o break
+o end
+o end
+- 
+o call faddr_dest:buzzer_success
+o load param_dest:var:move_type param_src:var:button_1
+o call faddr_dest:move
+- 
+o load param_dest:var:move_type param_src:var:button_2
+o call faddr_dest:move
+- 
+o load param_dest:var:move_type param_src:var:button_3
+o call faddr_dest:move
+- 
+o load param_dest:var:move_type param_src:var:button_4
+o call faddr_dest:move
+- 
+o load param_dest:var:move_type param_src:var:button_5
+o call faddr_dest:move
+o end
+- 
+o label laddr_src:Assembly_check_mode
+o call faddr_dest:init_assembly_check
+- 
+o while(1)
+o begin
+o call faddr_dest:assembly_check
+o if param_src:var:assembly_check lop:== param_src:bool_num:1 rop:then
+o begin
+o call faddr_dest:button_standby
+o jump laddr_dest:Start
+o end
+o end
+- 
+o label laddr_src:Straightness_check_mode
+o call faddr_dest:buzzer_straight_mode
+o load param_dest:cm:5 param_src:timer_num:5
+o wait param_src:cm:5 lop:> param_src:timer_num:0 rop:then
+o while(1)
+o begin
+o compute param_dest:motor:1:107 param_src:dir_num:0 aop:+ param_src:var:l_wheel_speed
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:var:r_wheel_speed
+o end
+o end
+- 
+o function faddr_src:initialize
+o begin
+o // param_text:********* no need to modify these variables *********//
+o load param_dest:var:button_number param_src:dec_num:1
+o end
+- 
+o function faddr_src:button_standby
+o begin
+o wait param_src:cm:4 lop:!= param_src:button_num:0 rop:then
+o end
+- 
+o function faddr_src:move
+o begin
+o if param_src:var:move_type lop:== param_src:button_num:8 rop:then
+o call faddr_dest:forward
+- 
+o elseif param_src:var:move_type lop:== param_src:button_num:4 rop:then
+o call faddr_dest:reverse
+- 
+o elseif param_src:var:move_type lop:== param_src:button_num:2 rop:then
+o call faddr_dest:pivot_left
+- 
+o elseif param_src:var:move_type lop:== param_src:button_num:1 rop:then
+o call faddr_dest:pivot_right
+o end
+- 
+o function faddr_src:forward
+o begin
+o compute param_dest:motor:1:107 param_src:dir_num:52 aop:+ param_src:dec_num:800
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
+o load param_dest:cm:6 param_src:var:forward_time
+o call faddr_dest:precise_timer_standby
+o call faddr_dest:stop
+o end
+- 
+o function faddr_src:reverse
+o begin
+o compute param_dest:motor:1:107 param_src:dir_num:1024 aop:+ param_src:var:l_wheel_speed
+o compute param_dest:motor:2:107 param_src:dir_num:0 aop:+ param_src:var:r_wheel_speed
+o load param_dest:cm:6 param_src:var:forward_time
+o call faddr_dest:precise_timer_standby
+o call faddr_dest:stop
+o end
+- 
+o function faddr_src:pivot_left
+o begin
+o compute param_dest:motor:1:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
+o compute param_dest:motor:2:107 param_src:dir_num:1024 aop:+ param_src:dec_num:800
+o load param_dest:cm:6 param_src:var:pivot_time
+o call faddr_dest:precise_timer_standby
+o call faddr_dest:stop
+o end
+- 
+o function faddr_src:pivot_right
+o begin
+o compute param_dest:motor:1:107 param_src:dir_num:0 aop:+ param_src:var:l_wheel_speed
+o compute param_dest:motor:2:107 param_src:dir_num:0 aop:+ param_src:var:r_wheel_speed
+o load param_dest:cm:6 param_src:var:pivot_time
+o call faddr_dest:precise_timer_standby
+o call faddr_dest:stop
+o end
+- 
+o function faddr_src:stop
+o begin
+o load param_dest:motor:1:107 param_src:dir_num:0
+o load param_dest:motor:2:107 param_src:dir_num:1024
+o end
+- 
+o function faddr_src:buzzer_button
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:1
+o load param_dest:cm:17 param_src:scale_num:7
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:then
+o end
+- 
+o function faddr_src:buzzer_success
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:1
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:then
+o end
+- 
+o function faddr_src:buzzer_failure
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:12
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:then
+o end
+- 
+o function faddr_src:button_init
+o begin
+o load param_dest:var:button_1 param_src:button_num:0
+o load param_dest:var:button_2 param_src:button_num:0
+o load param_dest:var:button_3 param_src:button_num:0
+o load param_dest:var:button_4 param_src:button_num:0
+o load param_dest:var:button_5 param_src:button_num:0
+o end
+- 
+o function faddr_src:standby
+o begin
+o load param_dest:cm:6 param_src:var:standby_time
+o call faddr_dest:precise_timer_standby
+o end
+- 
+o function faddr_src:precise_timer_standby
+o begin
+o wait param_src:cm:6 lop:> param_src:timer_num:0 rop:then
+o end
+- 
+o // param_text:**********************************************  functions for checking assembly **********************************************//
+- 
+o function faddr_src:init_assembly_check
+o begin
+o load param_dest:var:ID param_src:dec_num:0
+o load param_dest:var:ID_MIN param_src:dec_num:1
+o load param_dest:var:ID_MAX param_src:dec_num:2
+o load param_dest:var:assembly_check param_src:bool_num:0
+- 
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:1
+- 
+o load param_dest:motor:254:101 param_src:bool_num:0
+o load param_dest:cm:6 param_src:hrtimer_num:1000
+o call faddr_dest:precise_timer_standby
+o end
+- 
+o function faddr_src:assembly_check
+o begin
+o if param_src:cm:4 lop:== param_src:button_num:8 rop:then
+o call faddr_dest:ID_up
+- 
+o elseif param_src:cm:4 lop:== param_src:button_num:4 rop:then
+o call faddr_dest:ID_down
+- 
+o elseif param_src:cm:4 lop:== param_src:button_num:16 rop:then
+o begin
+o call faddr_dest:motor_init
+o load param_dest:var:assembly_check param_src:bool_num:1
+o end
+- 
+o if param_src:custom:b:ID:3 lop:!= param_src:var:ID rop:&& param_src:var:ID lop:> param_src:dec_num:0 rop:then
+o call faddr_dest:buzzer_motor_comm_fail
+- 
+o elseif param_src:custom:w:ID:34 lop:== param_src:dec_num:0 rop:&& param_src:var:ID lop:> param_src:dec_num:0 rop:then
+o call faddr_dest:buzzer_torque_limit_error
+o end
+- 
+o function faddr_src:ID_up
+o begin
+o load param_dest:motor:254:101 param_src:bool_num:0
+- 
+o if param_src:var:ID lop:< param_src:var:ID_MAX rop:then
+o begin
+o compute param_dest:var:ID param_src:var:ID aop:+ param_src:dec_num:1
+o load param_dest:custom:b:ID:25 param_src:dec_num:1
+o end
+- 
+o else
+o load param_dest:custom:b:ID:25 param_src:dec_num:1
+- 
+o load param_dest:cm:6 param_src:hrtimer_num:700
+o load param_dest:cm:18 param_src:buzzertime_num:5
+o load param_dest:cm:17 param_src:scale_num:15
+o call faddr_dest:precise_timer_standby
+o end
+- 
+o function faddr_src:ID_down
+o begin
+o load param_dest:motor:254:101 param_src:bool_num:0
+- 
+o if param_src:var:ID lop:> param_src:var:ID_MIN rop:then
+o begin
+o compute param_dest:var:ID param_src:var:ID aop:- param_src:dec_num:1
+o load param_dest:custom:b:ID:25 param_src:dec_num:1
+o end
+- 
+o else
+o load param_dest:custom:b:ID:25 param_src:dec_num:1
+- 
+o load param_dest:cm:6 param_src:hrtimer_num:700
+o load param_dest:cm:18 param_src:buzzertime_num:5
+o load param_dest:cm:17 param_src:scale_num:3
+o call faddr_dest:precise_timer_standby
+o end
+- 
+o function faddr_src:buzzer_motor_comm_fail
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:16
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:&& param_src:cm:4 lop:== param_src:button_num:0 rop:then
+o end
+- 
+o function faddr_src:buzzer_torque_limit_error
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:18
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:&& param_src:cm:4 lop:== param_src:button_num:0 rop:then
+o end
+- 
+o function faddr_src:motor_init
+o begin
+o load param_dest:motor:1:101 param_src:bool_num:0
+o load param_dest:motor:2:101 param_src:bool_num:0
+- 
+o // param_text:set to wheel mode
+o for param_var:ID_TEMP param_src:dec_num:1 param_src:dec_num:2
+o begin
+o if param_src:custom:w:ID_TEMP:8 lop:!= param_src:dec_num:0 rop:then
+o load param_dest:custom:w:ID_TEMP:8 param_src:dec_num:0
+o end
+o end
+- 
+o function faddr_src:assembly_error
+o begin
+o load param_dest:motor:254:107 param_src:dir_num:0
+o load param_dest:motor:254:100 param_src:bool_num:0
+o load param_dest:motor:254:101 param_src:bool_num:0
+o while(1)
+o begin
+o if param_src:cm:18 lop:== param_src:buzzertime_num:0 rop:then
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:255
+o load param_dest:cm:17 param_src:melody_num:16
+o end
+o end
+o end
+- 
+o // param_text:**********************************************  functions for straight mode **********************************************//
+- 
+o function faddr_src:buzzer_straight_mode
+o begin
+o load param_dest:cm:18 param_src:buzzertime_num:5
+o load param_dest:cm:17 param_src:scale_num:36
+o wait param_src:cm:18 lop:> param_src:buzzertime_num:0 rop:then
+o end
+- 
+o // param_text:********************************************** functions for checking dynamixel **********************************************//
+o function faddr_src:check_ID_mode
+o begin
+o for param_var:ID param_src:dec_num:1 param_src:dec_num:2
+o begin
+o // param_text:check connection
+o if param_src:custom:b:ID:3 lop:!= param_src:var:ID rop:then
+o call faddr_dest:assembly_error
+- 
+o // param_text:set to wheel mode
+o if param_src:custom:w:ID:8 lop:!= param_src:dec_num:0 rop:then
+o load param_dest:custom:w:ID:8 param_src:dec_num:0
+o end
+o end
+- 
