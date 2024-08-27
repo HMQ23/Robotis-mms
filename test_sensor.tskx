@@ -1,0 +1,61 @@
+﻿version 4.00
+cm_version 1.0
+platform CM-530
+o main
+o begin
+o while(1)
+o begin
+x load param_dest:cm:11 param_src:aux:6:63
+o // param_text:AHEAD - TRUOC
+- 
+o load param_dest:cm:11 param_src:aux:5:63
+o // param_text:RIGHT - PHAI
+- 
+x load param_dest:cm:11 param_src:aux:1:63
+- 
+o // param_text:LEFT - TRAI
+- 
+o load param_dest:cm:11 param_src:dec_num:9999
+- 
+o load param_dest:cm:6 param_src:dec_num:1000
+o call faddr_dest:precise_timer_standby
+o end
+o end
+- 
+o function faddr_src:precise_timer_standby
+o begin
+o wait param_src:cm:6 lop:> param_src:timer_num:0 rop:then
+o end
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
